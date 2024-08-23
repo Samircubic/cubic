@@ -1,7 +1,13 @@
-#include <stdio.h>     // функции с маленькой буквы
-#include <math.h>      // ксонстанты капс
-#include <TXLib.h>     // переменный с маленькой буквы
+#include <stdio.h>     // С„СѓРЅРєС†РёРё СЃ РјР°Р»РµРЅСЊРєРѕР№ Р±СѓРєРІС‹
+#include <math.h>      // РєСЃРѕРЅСЃС‚Р°РЅС‚С‹ РєР°РїСЃ
+//#include <TXLib.h>     // РїРµСЂРµРјРµРЅРЅС‹Р№ СЃ РјР°Р»РµРЅСЊРєРѕР№ Р±СѓРєРІС‹
 #include <stddef.h>    // (size_of)
+#include <string.h>
+
+#define red     "\033[31m"
+#define blue    "\x1b[34m"
+#define white   "\x1b[37m"
+#define green   "\x1b[32m"
 
 struct param_solution
 {
@@ -17,48 +23,62 @@ struct param_solution_expected
     int nroots;
 };
 
-enum comparison {
+enum comparison
+{
     MORE,
     EQUALS,
     LESS
 };
 
-enum number_solutions {INF_ROOTS = 3, ZERO_ROOT = 0, ONE_ROOT = 1, TWE_ROOT = 2};
-enum program_check {CRASH, OK};
-enum function_check {FUNCTION_COMPLIT, FUNCTION_ERROR};
+enum number_solutions
+{
+    INF_ROOTS = 3,
+    ZERO_ROOT = 0,
+    ONE_ROOT = 1,
+    TWE_ROOT = 2
+};
 
-enum number_solutions   solve           (double a, double b, double c, double *x1, double *x2);
-enum program_check      run_expected    (int ntest, double a, double b, double c, double x1expected, double x2expected, int nrootsexpected);
+enum program_check
+{
+    CRASH,
+    OK
+};
+
+enum function_check
+{
+    FUNCTION_COMPLIT,
+    FUNCTION_ERROR
+};
+
+enum number_solutions   solve           (struct param_solution *test1);
+enum program_check      run_expected    (struct param_solution_expected test);
 enum function_check     test            (void);
-enum function_check     output          (double a, double b, double c, double *x1, double *x2);
+enum function_check     output          (struct param_solution *test1);      //TODO rename
 enum comparison         comparedouble   (double x, double z);
 
-int input_one                       (int *input);
-void input_twe                      (param_solution *test1);
-int input_check                     (double *v);
-void check_buffer                   (int ch);
-void sorting_solutiong              (double *x, double *z);
+int     input_one                      (int *input);
+void    input_twe                      (param_solution *test1);
+int     check_input                    (double *v);
+void    check_buffer                   ();
+void    sorting_solutiong              (double *x, double *z);
+void     re_entry                       (void);
 
-const int YOUR_DECISION     = 1;         //  ваши решения
-const int FOR_NAN           = 1000;      //  NAN
-const double EPSILONT       = 0.0000001; //  минимальная погрешность
+const int    YOUR_DECISION  = 1;         //  РІР°С€Рё СЂРµС€РµРЅРёСЏ
+const int    FOR_NAN        = 1000;      //  NAN
+const double EPSILONT       = 0.0000001; //  РјРёРЅРёРјР°Р»СЊРЅР°СЏ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ
 
 int main (void)
 {
     int mode_selection = 0;
 
-    printf ("Какую проверку вы хотите осуществить?\n"
-            "1 - самостоятельная решение уравнений, любое число - автоматическая проверка программы\n");
+    printf ("What kind of check do you want to perform?\n"
+            red "1 " white "- independent decision, " red "Any number " white "- automatic program check\n");
 
-    input_one(&mode_selection);
+    input_one (&mode_selection);
 
-    if (mode_selection == YOUR_DECISION)
+    if (mode_selection == YOUR_DECISION)   //TODO rename РѕСЃРЅРѕРІРЅР°СЏ РїСЂРѕРіР°
     {
-        param_solution test1 = {NAN, NAN, NAN, NAN, NAN};
-
-        input_twe(&test1);
-
-        output (test1.a, test1.b, test1.c, &test1.x1, &test1.x2);  //приоритет у оператора .
+        re_entry ();
     }
 
     else
@@ -69,25 +89,25 @@ int main (void)
 
 //-------------------------------------------------------------------------------
 
-enum function_check output (double a, double b, double c, double *x1, double *x2)
+enum function_check output (struct param_solution *test1)//TODO rename
 {
-    int roots = solve (a, b, c, x1, x2);
+    int roots = solve (test1);      //TODO rename
 
     switch (roots)
     {
-        case ZERO_ROOT: printf ("нет решений\n");
+        case ZERO_ROOT: printf ("No solutions\n");
                 break;
 
-        case ONE_ROOT: printf ("x = %g", *x1);
+        case ONE_ROOT: printf ("x = %g\n", test1->x1);
                 break;
 
-        case TWE_ROOT: printf ("x1 = %g, x2 = %g", *x1, *x2);
+        case TWE_ROOT: printf ("x1 = %g, x2 = %g\n", test1->x1, test1->x2);
                 break;
 
-        case INF_ROOTS: printf ("бесконечно решений");
+        case INF_ROOTS: printf ("Any number\n");
                 break;
 
-        default:        printf ("ошибка");
+        default:        printf (red "Error\n     " white);
                 return FUNCTION_ERROR;
     }
 
@@ -96,24 +116,24 @@ enum function_check output (double a, double b, double c, double *x1, double *x2
 
 //-------------------------------------------------------------------------------
 
-enum number_solutions solve (double a, double b, double c, double *x1, double *x2)
+enum number_solutions solve (struct param_solution *test1)
 {
-    double d = pow (b,2) - 4*a*c;
+    double d = pow (test1->b,2) - 4*(test1->a)*(test1->c);         //TODO rename
 
-    if (comparedouble (a, 0) == EQUALS)
+    if (comparedouble (test1->a, 0) == EQUALS)       //TODO rename
     {
-        if (comparedouble (b, 0) == EQUALS)
+        if (comparedouble (test1->b, 0) == EQUALS)
         {
             return INF_ROOTS;
         }
 
         else   // b != 0
         {
-            *x1 = -c/b;
+            (test1->x1) = -test1->c/test1->b;
 
-            if (comparedouble (c, 0) == EQUALS)
+            if (comparedouble (test1->c, 0) == EQUALS)
             {
-                *x1 = 0;
+                (test1->x1) = 0;
             }
             return ONE_ROOT;
         }
@@ -121,21 +141,21 @@ enum number_solutions solve (double a, double b, double c, double *x1, double *x
 
     else    // a != 0
     {
-            if (d < 0)
+            if (comparedouble (d, 0) == LESS)
             {
                 return ZERO_ROOT;
             }
 
             if (comparedouble (d, 0) == EQUALS)
             {
-                *x1 = (-b + sqrt(d)) / (2*a);
+                (test1->x1) = (-test1->b + sqrt(d)) / (2*test1->a);
                 return ONE_ROOT;
             }
 
             else
             {
-                *x1 = (-b - sqrt(d)) / (2*a);
-                *x2 = (-b + sqrt(d)) / (2*a);
+                (test1->x1) = (-test1->b - sqrt(d)) / (2*test1->a);         //TODO check is -0   example: -1 2 0
+                (test1->x2) = (-test1->b + sqrt(d)) / (2*test1->a);
                 return TWE_ROOT;
             }
     }
@@ -143,62 +163,62 @@ enum number_solutions solve (double a, double b, double c, double *x1, double *x
 
 //------------------------------------------------------------------------------------------------------
 
-enum program_check run_expected (int ntest, double a, double b, double c, double x1expected, double x2expected, int nrootsexpected)
+enum program_check run_expected (struct param_solution_expected *test)     //TODO rename
 {
-    double x1 = NAN, x2 = NAN;
+    struct param_solution test_expected = {test->a, test->b, test->c, test->x1, test->x2};     //TODO param_solution_expected->param_solution
 
-    int nroots = solve (a, b, c, &x1, &x2);
+    int nroots = solve (&test_expected);
 
-    sorting_solutiong (&x1expected, &x2expected);
+    sorting_solutiong (&(test->x1), &(test->x2));   //TODO rename
 
-    if (nrootsexpected == 2)
+    if ((test->nroots) == 2)
     {
-        if (nroots != nrootsexpected || comparedouble(x1, x1expected) != EQUALS || comparedouble(x2, x2expected) != EQUALS)
+        if (nroots != (test->nroots) || comparedouble(test->x1, test_expected.x1) != EQUALS || comparedouble(test->x2, test_expected.x2) != EQUALS)
         {
-            printf ("Ошибка: test %d, a = %g, b = %g, c = %g, x1 = %g, x2 = %g, nroots = %d\n"
-                    "Нужно: x1 = %g, x2 = %g, nroots = %d\n",
-                    ntest, a, b, c, x1, x2, nroots,
-                    x1expected, x2expected, nrootsexpected);
-            return CRASH;  // есть ошибка
+            printf (red "Error: " white "test %d, a = %g, b = %g, c = %g, x1 = %g, x2 = %g, nroots = %d\n"
+                    "Necessary: x1 = %g, x2 = %g, nroots = %d\n",
+                    test->ntest, test_expected.a, test_expected.b, test_expected.c, test_expected.x1, test_expected.x2, nroots,
+                    test->x1, test->x2, test->nroots);
+            return CRASH;  // РµСЃС‚СЊ РѕС€РёР±РєР°
         }
 
         else
         {
-            return OK;  // нет ошибки
+            return OK;  // РЅРµС‚ РѕС€РёР±РєРё
         }
     }
 
-    if (nrootsexpected == 1)
+    if ((test->nroots) == 1)
     {
-        if (nroots != nrootsexpected || comparedouble (x1, x1expected) != EQUALS)
+        if (nroots != (test->nroots) || comparedouble(test->x1, test_expected.x1) != EQUALS)
         {
-            printf ("Ошибка: test %d, a = %g, b = %g, c = %g, x1 = %g, x2 = %g, nroots = %d\n"
-                    "Нужно: x1 = %g, x2 = %g, nroots = %d\n",
-                    ntest, a, b, c, x1, x2, nroots,
-                    x1expected, x2expected, nrootsexpected);
-            return CRASH;  // есть ошибка
+            printf (red "Error: " white "test %d, a = %g, b = %g, c = %g, x1 = %g, x2 = %g, nroots = %d\n"
+                    "Necessary: x1 = %g, x2 = %g, nroots = %d\n",
+                    test->ntest, test_expected.a, test_expected.b, test_expected.c, test_expected.x1, test_expected.x2, nroots,
+                    test->x1, test->x2, test->nroots);
+            return CRASH;  // РµСЃС‚СЊ РѕС€РёР±РєР°
         }
 
         else
         {
-            return OK;  // нет ошибки
+            return OK;  // РЅРµС‚ РѕС€РёР±РєРё
         }
     }
 
     else
     {
-        if (nroots != nrootsexpected)
+        if (nroots != (test->nroots))
         {
-            printf ("Ошибка: test %d, a = %g, b = %g, c = %g, x1 = %g, x2 = %g, nroots = %d\n"
-                    "Нужно: x1 = %g, x2 = %g, nroots = %d\n",
-                    ntest, a, b, c, x1, x2, nroots,
-                    x1expected, x2expected, nrootsexpected);
-            return CRASH;  // есть ошибка
+            printf (red "Error: " white "test %d, a = %g, b = %g, c = %g, x1 = %g, x2 = %g, nroots = %d\n"
+                    "Necessary: x1 = %g, x2 = %g, nroots = %d\n",
+                    test->ntest, test_expected.a, test_expected.b, test_expected.c, test_expected.x1, test_expected.x2, nroots,
+                    test->x1, test->x2, test->nroots);
+            return CRASH;  // РµСЃС‚СЊ РѕС€РёР±РєР°
         }
 
         else
         {
-            return OK;  // нет ошибки
+            return OK;  // РЅРµС‚ РѕС€РёР±РєРё
         }
     }
 }
@@ -216,23 +236,24 @@ enum function_check test (void)
                                                 {7, 1, 0, -4, -2, +2, 2},
                                                 {8, 1, 0, -4, -2, +2, 2},
                                                 {9, 1, 0, -4, -2, +2, 2},
-                                                {10, 1, 0, -4, -2, +2, 2}};
-    int n = (sizeof(test) / sizeof (struct param_solution_expected));
+                                                {10, 1, 0, -4, -2, +2, 2}};   //TODO РІС‹СЂР°РІРЅРёРІР°РЅРёРµ
+    int n = (sizeof(test) / sizeof (struct param_solution_expected));          //TODO
 
     int i = 0, expected = 0;
 
     for (i = 0; i < n; i++)
     {
-        expected = run_expected (test[i].ntest, test[i].a, test[i].b, test[i].c, test[i].x1, test[i].x2, test[i].nroots);
+        expected = run_expected (test + i);//(test + i)
+        //*(test + 2) РЅРµ Р±Р°Р№С‚С‹  test[i] == &*(test + i)
         if (expected == CRASH)
         {
-            printf ("Тест провален, программа прервана.");
+            printf (red "Test failed, program aborted." white);     //TODO all - test
             break;
         }
     }
     if (expected != CRASH)
     {
-        printf ("Все тесты, успешно пройдены.");
+        printf (green "All tests passed successfully." white);
     }
 
     return FUNCTION_COMPLIT;
@@ -265,10 +286,10 @@ int input_one (int *input)
 
     while (scanf ("%d", input) != 1)
     {
-        while ((ch = getchar ()) != '\n');
+        while ((ch = getchar ()) != '\n'); //TODO func check_buf
 
-        printf ("Неверный ввод\n"
-                "Необходимо ввести число\n");
+        printf (red "Invalid input\n"
+                "You must enter a number\n");
     }
 
     return OK;
@@ -278,50 +299,74 @@ int input_one (int *input)
 
 void input_twe (param_solution *test1)
 {
-    printf ("ведите параметры уравнения формата (ax**2 + bx + c = 0):\n"
-            "введите параметр а = ");
-    input_check (&(test1 -> a));
+    printf ("Enter the parameters of the equation in the format (ax**2 + bx + c = 0):\n"
+            "Enter parametr" blue " a = " white);
+    check_input (&(test1 -> a));
 
-    printf ("введите параметр в = ");
-    input_check (&(test1 -> b));
+    printf ("Enter parametr" blue " b = " white);            //TODO assert
+    check_input (&(test1 -> b));
 
-    printf ("введите параметр с = ");
-    input_check (&(test1 -> c));
+    printf ("Enter parametr" blue " c = " white);
+    check_input (&(test1 -> c));
 
 }
 
 //----------------------------------------------------------------------
 
-int input_check (double *v)
+int check_input (double *param)  //TODO rename
 {
     int ch = 0;
 
-    while (scanf ("%lf", v) != 1)
+    while (scanf ("%lf", param) != 1)
     {
         check_buffer (ch);
 
-        printf ("Необходимо ввести число\n"
-                "параметр = ");
+        printf ("You must enter a number\n"
+                "Parametr = ");
     }
-    check_buffer (ch);
+    check_buffer ();
 
-        return OK;
+        return OK;       //TODO void
 }
 
 //----------------------------------------------------------------------
 
-void check_buffer (int ch)
+void check_buffer ()
 {
+    int ch = 0;
     while ((ch = getchar ()) != '\n');
 }
 
 void sorting_solutiong(double *x, double *z)
 {
-    double n;
+    double n;     //TODO    assert
     if ((*x) > (*z))
     {
-        n = *x;
+         n = *x;
         *x = *z;
-        *z = n;
+        *z =  n;
+    }
+}
+
+void re_entry(void)
+{
+    while (1)
+    {
+        param_solution test1 = {NAN, NAN, NAN, NAN, NAN};       //TODO rename
+
+        input_twe (&test1);   //TODO rename
+
+        output (&test1);      //TODO 2 func solve and output
+
+        printf ("Want to solve another equation\n");
+
+        char buff[100] = "";
+
+        fgets (buff, 100, stdin);       //TODO flesh buf stdin
+
+        if ((strcmp (buff, "no\n")) == 0 || (strcmp (buff, "No\n")) == 0 || (strcmp (buff, "NO\n")) == 0)
+        {
+            break;
+        }
     }
 }
