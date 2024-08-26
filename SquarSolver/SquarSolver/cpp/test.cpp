@@ -73,28 +73,27 @@ enum program_check run_expected (struct param_solution_expected *test)
         }
     }
 
-    if (((test->parametrs_expected).nroots) == 1)
+    else if (((test->parametrs_expected).nroots) == 1)
     {
         if (test->parametrs_expected.nroots != (test->parametrs.nroots) || compare_double (test->parametrs.x1, test->parametrs_expected.x1) != EQUALS)
         {
             output_test (test);
+            
             return CRASH;  // есть ошибка
         }
-
         else
         {
             return OK;  // нет ошибки
         }
     }
-
     else
     {
         if (test->parametrs_expected.nroots != (test->parametrs.nroots))
         {
             output_test (test);
+
             return CRASH;  // есть ошибка
         }
-
         else
         {
             return OK;  // нет ошибки
@@ -108,8 +107,8 @@ void test_from_file (void)
 {
     struct param_solution_expected test_file[] = {};
 
-    // char buff[10000];
-    // fgets (buff, 10000, stdin); // TODO сделать ввод имени файла и очистку буфера
+    // char buff[100];
+    // fgets (buff, 100, stdin); // TODO сделать ввод имени файла и очистку буфера
     // fflush(stdin);
 
     FILE *file;
