@@ -9,6 +9,10 @@ void test (int number_of_test, struct param_solution_expected *test);
 
 //---------------------------------------------------------------------
 
+/*!
+функция инициализирует массив структур с заданными данными и передает в тестирующую часть
+*/
+                                                    //точность данных должна быть не меньше 5 знаком после запятой
 void test_from_program (void)                       //param_solution_expected
 {                                                   //ntest, {а,        в,      с,      x1,             x2          nroots}
     struct param_solution_expected test_program[] =    {{1,  {1,        0,      -4,     +2,             -2,         TWO_ROOT}},
@@ -28,7 +32,12 @@ void test_from_program (void)                       //param_solution_expected
 
 //------------------------------------------------------------------------------------------------------
 
-void test (int number_of_test, struct param_solution_expected* test)
+/*!
+функция последовательно передает каждый тест из массива структур на исследование, \n
+где одна структура выступает одним тестом
+*/
+
+void test (int number_of_test, struct param_solution_expected *test)
 {
     int test_execution_check = 0;
 
@@ -42,18 +51,27 @@ void test (int number_of_test, struct param_solution_expected* test)
         }
         else
         {
-             /////////////CRASH////////assert ()
+            /////////////CRASH////////assert ()
+            break;
         }
+    printf("assert2\n");
     }
+    printf("assert3\n");
 }
 
 //------------------------------------------------------------------------------------------------------
+
+/*!
+функция исследует заданные параметры, получает от solve ответы и сравнивает их с верными,\n
+после чего возвращает ошибку при несходстве и верно пройденый тест при верно высчитаных ответах соответственно
+*/
 
 enum program_check run_expected (struct param_solution_expected *test)
 {
     assert (test);
 
     (test->parametrs) = (test->parametrs_expected);
+
     solve (&(test->parametrs));
 
     sorting_solutiong (&((test->parametrs_expected).x1), &((test->parametrs_expected).x2));
@@ -64,21 +82,20 @@ enum program_check run_expected (struct param_solution_expected *test)
         if (test->parametrs_expected.nroots != (test->parametrs.nroots) || compare_double (test->parametrs.x1, test->parametrs_expected.x1) != EQUALS || compare_double(test->parametrs.x2, test->parametrs_expected.x2) != EQUALS)
         {
             output_test (test);
+
             return CRASH;  // есть ошибка
         }
-
         else
         {
             return OK;  // нет ошибки
         }
     }
-
     else if (((test->parametrs_expected).nroots) == 1)
     {
         if (test->parametrs_expected.nroots != (test->parametrs.nroots) || compare_double (test->parametrs.x1, test->parametrs_expected.x1) != EQUALS)
         {
             output_test (test);
-            
+
             return CRASH;  // есть ошибка
         }
         else
@@ -103,6 +120,11 @@ enum program_check run_expected (struct param_solution_expected *test)
 
 //------------------------------------------------------------------------------------------------------
 
+/*!
+функция инициализирует массив структур, \n
+задает параметры и верные ответы читая их из заданного файла и передает в тестирующую часть
+*/
+
 void test_from_file (void)
 {
     struct param_solution_expected test_file[] = {};
@@ -113,20 +135,27 @@ void test_from_file (void)
 
     FILE *file;
     file = fopen ("test.txt", "r");
-    assert (file);                                      //проверка на верно указанный файл и возврат верного указателя
+
+    if (file == 0)                                     //проверка на верно указанный файл и возврат верного указателя
+    {
+        printf ("error opening a file with the same name");
+    }
 
     int number_of_test = 0;
     fscanf (file, "%d", &number_of_test);
 
-    for (int ii = 0; ii < number_of_test; ii++)
+    for (int i = 0; i < number_of_test; i++)
     {
-        test_file[ii].ntest = ii;
-        fscanf (file, "%lf %lf %lf %lf %lf %d ", &test_file[ii].parametrs_expected.a, &test_file[ii].parametrs_expected.b,
-        &test_file[ii].parametrs_expected.c, &test_file[ii].parametrs_expected.x1, &test_file[ii].parametrs_expected.x2,
-        &test_file[ii].parametrs_expected.nroots);
+        test_file[i].ntest = i;
 
-        test (number_of_test, test_file);
+        fscanf (file, "%lf %lf %lf %lf %lf %d ", &test_file[i].parametrs_expected.a, &test_file[i].parametrs_expected.b,
+                &test_file[i].parametrs_expected.c, &test_file[i].parametrs_expected.x1, &test_file[i].parametrs_expected.x2,
+                &test_file[i].parametrs_expected.nroots);
     }
 
-    fclose(file);
+    test (number_of_test, test_file);
+    printf("assert4\n");
+    // fclose(file);
+    printf("assert5\n");
+    printf("assert6\n");
 }

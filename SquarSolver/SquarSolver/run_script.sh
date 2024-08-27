@@ -2,4 +2,4 @@
 make clean
 clear
 make
-./solve
+solve
