@@ -3,9 +3,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include "../square_solver.h"
-
-//typedef void handles_structure (struct); TODO
+#include "../hhh/main.h"
 
 //-------------------------------------------------------------------------------
 
@@ -41,34 +39,20 @@ int main (void)
         {
             test_from_program ();
         }
-        else                                     
+        else
         {
             test_from_file ();
-            printf("assert7\n");
         }
     }
 }
 
-// int input_data_from_file_to_structure
-
-// struct coeffs new_coeffs = {};
-// coeffs_t new_...
-
 //--------------------------------------------------------------------------------------
-
-/*!
-запускает цикл решения квадратных уравнений с теми параметрами которые введет пользователь\n
-в конце каждого цикла пользователь выбирает решать дальше уравнения или приостановить программу\n
-input_params (&data) ввод параметров с проверкой\n
-solve (&data) автоматически решает уравнения при заданных параметрах\n
-output (&data) вывод ответов
-*/
 
 void re_entry (void)  ///<вызов основной программы
 {
     while (1)
     {
-        param_solution data = {NAN, NAN, NAN, NAN, NAN, 0};
+        equation_parameters_t data = {NAN, NAN, NAN, NAN, NAN, 0};
 
         input_params (&data);
 

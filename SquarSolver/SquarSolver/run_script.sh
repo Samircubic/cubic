@@ -2,4 +2,5 @@
 make clean
 clear
 make
-solve
+./solve
+make clean

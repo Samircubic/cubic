@@ -2,20 +2,18 @@
 #include <stddef.h>
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
+#include <malloc.h>
 
-#include "../square_solver.h"
+#include "../hhh/test.h"
 
-void test (int number_of_test, struct param_solution_expected *test);
+void test (int number_of_test, testing_parameters_t *test);
 
 //---------------------------------------------------------------------
-
-/*!
-функция инициализирует массив структур с заданными данными и передает в тестирующую часть
-*/
                                                     //точность данных должна быть не меньше 5 знаком после запятой
 void test_from_program (void)                       //param_solution_expected
 {                                                   //ntest, {а,        в,      с,      x1,             x2          nroots}
-    struct param_solution_expected test_program[] =    {{1,  {1,        0,      -4,     +2,             -2,         TWO_ROOT}},
+    testing_parameters_t test_program[] =    {{1,  {1,        0,      -4,     +2,             -2,         TWO_ROOT}},
                                                         {2,  {1,        0,      0,      0,              NAN,        ONE_ROOT}},
                                                         {3,  {0,        2,      0,      0,              NAN,        ONE_ROOT}},
                                                         {4,  {0,        0,      0,      NAN,            NAN,        INF_ROOTS}},
@@ -25,7 +23,7 @@ void test_from_program (void)                       //param_solution_expected
                                                         {8,  {-4,       -4,     -4,     NAN,            NAN,        ZERO_ROOT}},
                                                         {9,  {-1.5,     5,      5,      4.13873,        -0.805399,  TWO_ROOT}},
                                                         {10, {-10.67,   10,     15,     1.74352,        -0.806308,  TWO_ROOT}}};
-    int number_of_test = (sizeof (test_program) / sizeof (struct param_solution_expected));
+    int number_of_test = (sizeof (test_program) / sizeof (testing_parameters_t));
 
     test (number_of_test, test_program);
 }
@@ -37,7 +35,7 @@ void test_from_program (void)                       //param_solution_expected
 где одна структура выступает одним тестом
 */
 
-void test (int number_of_test, struct param_solution_expected *test)
+void test (int number_of_test, testing_parameters_t *test)
 {
     int test_execution_check = 0;
 
@@ -54,23 +52,16 @@ void test (int number_of_test, struct param_solution_expected *test)
             /////////////CRASH////////assert ()
             break;
         }
-    printf("assert2\n");
     }
-    printf("assert3\n");
 }
 
 //------------------------------------------------------------------------------------------------------
 
-/*!
-функция исследует заданные параметры, получает от solve ответы и сравнивает их с верными,\n
-после чего возвращает ошибку при несходстве и верно пройденый тест при верно высчитаных ответах соответственно
-*/
-
-enum program_check run_expected (struct param_solution_expected *test)
+enum program_check run_expected (testing_parameters_t *test)
 {
     assert (test);
 
-    (test->parametrs) = (test->parametrs_expected);
+    test->parametrs = test->parametrs_expected;
 
     solve (&(test->parametrs));
 
@@ -120,18 +111,32 @@ enum program_check run_expected (struct param_solution_expected *test)
 
 //------------------------------------------------------------------------------------------------------
 
-/*!
-функция инициализирует массив структур, \n
-задает параметры и верные ответы читая их из заданного файла и передает в тестирующую часть
-*/
-
 void test_from_file (void)
 {
-    struct param_solution_expected test_file[] = {};
-
     // char buff[100];
     // fgets (buff, 100, stdin); // TODO сделать ввод имени файла и очистку буфера
     // fflush(stdin);
+
+    // char buff[100];
+    // for (int i = 0; i < 100; i++)
+    // {
+    //     // char ch = getchar ();
+    //     buff[i] = getchar ();
+    // }
+//     fgets (buff, 100, stdin);
+//     fflush(stdin);
+//     printf("%s", buff);
+//
+//     for (int i = 0; i < 100; i++)
+//     {
+//         if (buff[i] == '\0')
+//         {
+//             buff[i] = 0;
+//         }
+//     }
+
+    // char* file_name = char* (malloc(100 * sizeof(char*)));
+    // scanf(" Введите имя файла с данными: %s", file_name);
 
     FILE *file;
     file = fopen ("test.txt", "r");
@@ -144,18 +149,19 @@ void test_from_file (void)
     int number_of_test = 0;
     fscanf (file, "%d", &number_of_test);
 
+    testing_parameters_t test_file[20] = {};
+
     for (int i = 0; i < number_of_test; i++)
     {
-        test_file[i].ntest = i;
+        test_file[i].ntest = i + 1;
 
-        fscanf (file, "%lf %lf %lf %lf %lf %d ", &test_file[i].parametrs_expected.a, &test_file[i].parametrs_expected.b,
-                &test_file[i].parametrs_expected.c, &test_file[i].parametrs_expected.x1, &test_file[i].parametrs_expected.x2,
-                &test_file[i].parametrs_expected.nroots);
+        fscanf (file, "%lf %lf %lf %lf %lf %d", &(test_file[i].parametrs_expected.a), &(test_file[i].parametrs_expected.b),
+                &(test_file[i].parametrs_expected.c), &(test_file[i].parametrs_expected.x1), &(test_file[i].parametrs_expected.x2),
+                &(test_file[i].parametrs_expected.nroots));
     }
 
     test (number_of_test, test_file);
-    printf("assert4\n");
-    // fclose(file);
-    printf("assert5\n");
-    printf("assert6\n");
+
+    fclose (file);
 }
+

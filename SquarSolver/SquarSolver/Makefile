@@ -8,20 +8,17 @@ CFLAGS  = 	-Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-e
 			-Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits\
 			-Wwrite-strings -Werror=vla -D_DEBUG -D_EJUDGE_CLIENT_SIDE
 
-all: main.o input.o solve.o output.o test.o general_functions.o
-	g++ main.o input.o solve.o output.o test.o general_functions.o -o solve
+all: main.o input_output.o solve.o test.o general_functions.o
+	g++ main.o input_output.o solve.o test.o general_functions.o -o solve
 
 main.o: cpp/main.cpp
 	$(CC) $(CFLAGS) -c cpp/main.cpp
 
-input.o: cpp/input.cpp
-	$(CC) $(CFLAGS) -c cpp/input.cpp
+input_output.o: cpp/input_output.cpp
+	$(CC) $(CFLAGS) -c cpp/input_output.cpp
 
 solve.o: cpp/solve.cpp
 	$(CC) $(CFLAGS) -c cpp/solve.cpp
-
-output.o: cpp/output.cpp
-	$(CC) $(CFLAGS) -c cpp/output.cpp
 
 test.o: cpp/test.cpp
 	$(CC) $(CFLAGS) -c cpp/test.cpp
