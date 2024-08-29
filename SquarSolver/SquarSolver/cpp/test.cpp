@@ -135,13 +135,15 @@ void test_from_file (void)
 //         }
 //     }
 
-    // char* file_name = char* (malloc(100 * sizeof(char*)));
-    // scanf(" Введите имя файла с данными: %s", file_name);
+    const char* file_name = (char*) calloc(100, sizeof(char));
+    
+    printf ("enter the file name with parameters: ");
+    scanf ("%s", file_name);
 
-    FILE *file;
-    file = fopen ("test.txt", "r");
+    FILE *file = NULL;//
+    file = fopen (file_name, "rb");
 
-    if (file == 0)                                     //проверка на верно указанный файл и возврат верного указателя
+    if (!file)                                     //проверка на верно указанный файл и возврат верного указателя
     {
         printf ("error opening a file with the same name");
     }

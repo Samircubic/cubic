@@ -90,4 +90,11 @@ void                test_from_file      (void);
 
 void                solve               (equation_parameters_t *data);
 
+/*!
+функция используется для очистки буфера ввода
+*/
+
+void            check_buffer        (void);
+
+
 #endif      //TEST_H
